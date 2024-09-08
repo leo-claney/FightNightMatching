@@ -1,5 +1,6 @@
 #Take in the rankings of each auditionee, each group, and the maximum number of people each group would take 
 #NOTE - The maximum number of people in each group is fairly important for this
+#TODO - Strip whitespaces, add max cap for each group, include the max cap as the first row of the csv under the group names (also strip first row from group rankings list)
 import csv
 class Auditionee:
     def __init__(self, name: str, rankings: list):
