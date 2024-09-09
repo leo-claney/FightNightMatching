@@ -1,6 +1,6 @@
 #Take in the rankings of each auditionee, each group, and the maximum number of people each group would take 
 #NOTE - The maximum number of people in each group is fairly important for this
-#TODO - Strip whitespaces, add max cap for each group, include the max cap as the first row of the csv under the group names (also strip first row from group rankings list)
+#TODO - Strip whitespaces
 import csv
 class Auditionee:
     def __init__(self, name: str, rankings: list):
@@ -9,9 +9,10 @@ class Auditionee:
         self.group = None
 
 class Group:
-    def __init__(self, name: str, rankings: list):
+    def __init__(self, name: str, rankings: list, maxCap: int):
         self.name = name
         self.rankings = rankings
+        self.groupMax = maxCap
         self.newMembers = []
                     
 def auditioneematcher(groups: list, auditionees: list):
@@ -30,7 +31,7 @@ def auditioneematcher(groups: list, auditionees: list):
 
 def allGroupsFull(groups: list):
     for group in groups:
-        if len(group.newMembers) < 3:
+        if len(group.newMembers) < group.groupMax:
             return False
     return True
 
@@ -42,7 +43,7 @@ def groupmatcher(groups: list, auditionees: list):
                     for group in groups:
                         if group.name == groupName:
                             if auditionee.name in group.rankings:
-                                if len(group.newMembers) < 3:
+                                if len(group.newMembers) < group.groupMax:
                                     auditionee.group = group
                                     group.newMembers.append(auditionee)
                                 else:
@@ -69,6 +70,10 @@ def test_csv():
             for row in rows:
                 if row[column] != '':
                     groups[column].append(row[column])
+        for key, value in groups.items():
+            groupMax = value[0]
+            groupRanks = value[1:]
+            groups[key] = (groupMax, groupRanks)
 
     with open('Fight Night Rankings - Test Auditionee Rankings.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -85,25 +90,25 @@ def main():
     groups, auditionees = test_csv()
     groupList = []
     auditioneeList = []
-    for groupname,ranking in groups.items():
-        groupList.append(Group(groupname, ranking))
+    for groupname,groupinfo in groups.items():
+        groupList.append(Group(groupname, groupinfo[1], int(groupinfo[0])))
     for auditioneename,ranking in auditionees.items():
         auditioneeList.append(Auditionee(auditioneename, ranking))
-    auditioneematcher(groupList, auditioneeList)
-    print('Auditionee Matching:')
-    for group in groupList:
-        aveRank = 0
-        for auditionee in group.newMembers:
-            aveRank += group.rankings.index(auditionee.name) + 1
-        aveRank /= len(group.newMembers)
-        print(f'New members for {group.name} (ave rank: {aveRank}):')
-        for member in group.newMembers:
-            print(f'{member.name}, group ranking: {group.rankings.index(member.name) + 1}')
-        print()
-    for group in groupList:
-        group.newMembers = []
-    for auditionee in auditioneeList:
-        auditionee.group = None
+    # auditioneematcher(groupList, auditioneeList)
+    # print('Auditionee Matching:')
+    # for group in groupList:
+    #     aveRank = 0
+    #     for auditionee in group.newMembers:
+    #         aveRank += group.rankings.index(auditionee.name) + 1
+    #     aveRank /= len(group.newMembers)
+    #     print(f'New members for {group.name} (ave rank: {aveRank}):')
+    #     for member in group.newMembers:
+    #         print(f'{member.name}, group ranking: {group.rankings.index(member.name) + 1}')
+    #     print()
+    # for group in groupList:
+    #     group.newMembers = []
+    # for auditionee in auditioneeList:
+    #     auditionee.group = None
 
     print("=====================================================")
     groupmatcher(groupList, auditioneeList)
